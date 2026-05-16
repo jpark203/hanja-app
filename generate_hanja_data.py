@@ -1,0 +1,234 @@
+import json
+
+hanja_data = [
+    {
+        "hz": "天",
+        "kr_meaning": "하늘",
+        "kr_sound": "천",
+        "examples": [
+            {"word": "천국 (天國)", "def": "Heaven"},
+            {"word": "천사 (天使)", "def": "Angel"}
+        ]
+    },
+    {
+        "hz": "地",
+        "kr_meaning": "땅",
+        "kr_sound": "지",
+        "examples": [
+            {"word": "지구 (地球)", "def": "Earth"},
+            {"word": "지하 (地下)", "def": "Underground"}
+        ]
+    },
+    {
+        "hz": "人",
+        "kr_meaning": "사람",
+        "kr_sound": "인",
+        "examples": [
+            {"word": "인간 (人間)", "def": "Human"},
+            {"word": "인구 (人口)", "def": "Population"}
+        ]
+    },
+    {
+        "hz": "大",
+        "kr_meaning": "큰",
+        "kr_sound": "대",
+        "examples": [
+            {"word": "대학 (大學)", "def": "University"},
+            {"word": "대통령 (大統領)", "def": "President"}
+        ]
+    },
+    {
+        "hz": "小",
+        "kr_meaning": "작을",
+        "kr_sound": "소",
+        "examples": [
+            {"word": "소설 (小說)", "def": "Novel"},
+            {"word": "초소형 (超小型)", "def": "Ultra-small"}
+        ]
+    },
+    {
+        "hz": "中",
+        "kr_meaning": "가운데",
+        "kr_sound": "중",
+        "examples": [
+            {"word": "중학교 (中學校)", "def": "Middle school"},
+            {"word": "중심 (中心)", "def": "Center"}
+        ]
+    },
+    {
+        "hz": "心",
+        "kr_meaning": "마음",
+        "kr_sound": "심",
+        "examples": [
+            {"word": "진심 (眞心)", "def": "Sincerity"},
+            {"word": "심장 (心臟)", "def": "Heart"}
+        ]
+    },
+    {
+        "hz": "水",
+        "kr_meaning": "물",
+        "kr_sound": "수",
+        "examples": [
+            {"word": "수영 (水泳)", "def": "Swimming"},
+            {"word": "생수 (生水)", "def": "Mineral water"}
+        ]
+    },
+    {
+        "hz": "火",
+        "kr_meaning": "불",
+        "kr_sound": "화",
+        "examples": [
+            {"word": "화산 (火山)", "def": "Volcano"},
+            {"word": "화재 (火災)", "def": "Fire disaster"}
+        ]
+    },
+    {
+        "hz": "木",
+        "kr_meaning": "나무",
+        "kr_sound": "목",
+        "examples": [
+            {"word": "목재 (木材)", "def": "Lumber/Wood"},
+            {"word": "수목원 (樹木園)", "def": "Arboretum"}
+        ]
+    },
+    {
+        "hz": "金",
+        "kr_meaning": "쇠/김",
+        "kr_sound": "금/김",
+        "examples": [
+            {"word": "현금 (現金)", "def": "Cash"},
+            {"word": "금메달 (金메달)", "def": "Gold medal"}
+        ]
+    },
+    {
+        "hz": "土",
+        "kr_meaning": "흙",
+        "kr_sound": "토",
+        "examples": [
+            {"word": "토지 (土地)", "def": "Land"},
+            {"word": "영토 (領土)", "def": "Territory"}
+        ]
+    },
+    {
+        "hz": "日",
+        "kr_meaning": "날/해",
+        "kr_sound": "일",
+        "examples": [
+            {"word": "일기 (日記)", "def": "Diary"},
+            {"word": "휴일 (休日)", "def": "Holiday"}
+        ]
+    },
+    {
+        "hz": "月",
+        "kr_meaning": "달",
+        "kr_sound": "월",
+        "examples": [
+            {"word": "월급 (月給)", "def": "Monthly salary"},
+            {"word": "세월 (歲月)", "def": "Time, years"}
+        ]
+    },
+    {
+        "hz": "山",
+        "kr_meaning": "뫼",
+        "kr_sound": "산",
+        "examples": [
+            {"word": "등산 (登山)", "def": "Hiking"},
+            {"word": "산맥 (山脈)", "def": "Mountain range"}
+        ]
+    },
+    {
+        "hz": "母",
+        "kr_meaning": "어미",
+        "kr_sound": "모",
+        "examples": [
+            {"word": "부모 (父母)", "def": "Parents"},
+            {"word": "모국어 (母國語)", "def": "Mother tongue"}
+        ]
+    },
+    {
+        "hz": "父",
+        "kr_meaning": "아비",
+        "kr_sound": "부",
+        "examples": [
+            {"word": "부친 (父親)", "def": "Father"},
+            {"word": "학부모 (學父母)", "def": "Parents of students"}
+        ]
+    },
+    {
+        "hz": "男",
+        "kr_meaning": "사내",
+        "kr_sound": "남",
+        "examples": [
+            {"word": "남자 (男子)", "def": "Man"},
+            {"word": "남녀 (男女)", "def": "Men and women"}
+        ]
+    },
+    {
+        "hz": "女",
+        "kr_meaning": "계집",
+        "kr_sound": "녀/여",
+        "examples": [
+            {"word": "여자 (女子)", "def": "Woman"},
+            {"word": "소녀 (少女)", "def": "Girl"}
+        ]
+    },
+    {
+        "hz": "學",
+        "kr_meaning": "배울",
+        "kr_sound": "학",
+        "examples": [
+            {"word": "학교 (學校)", "def": "School"},
+            {"word": "학생 (學生)", "def": "Student"}
+        ]
+    },
+    {
+        "hz": "國",
+        "kr_meaning": "나라",
+        "kr_sound": "국",
+        "examples": [
+            {"word": "국가 (國家)", "def": "Nation"},
+            {"word": "외국 (外國)", "def": "Foreign country"}
+        ]
+    },
+    {
+        "hz": "出",
+        "kr_meaning": "날",
+        "kr_sound": "출",
+        "examples": [
+            {"word": "출발 (出發)", "def": "Departure"},
+            {"word": "수출 (輸出)", "def": "Export"}
+        ]
+    },
+    {
+        "hz": "入",
+        "kr_meaning": "들",
+        "kr_sound": "입",
+        "examples": [
+            {"word": "입구 (入口)", "def": "Entrance"},
+            {"word": "수입 (輸入)", "def": "Import"}
+        ]
+    },
+    {
+        "hz": "上",
+        "kr_meaning": "위",
+        "kr_sound": "상",
+        "examples": [
+            {"word": "상승 (上昇)", "def": "Rise, ascend"},
+            {"word": "정상 (頂上)", "def": "Summit, top"}
+        ]
+    },
+    {
+        "hz": "下",
+        "kr_meaning": "아래",
+        "kr_sound": "하",
+        "examples": [
+            {"word": "하락 (下落)", "def": "Fall, drop"},
+            {"word": "지하철 (地下鐵)", "def": "Subway"}
+        ]
+    }
+]
+
+with open("characters.json", "w", encoding="utf-8") as f:
+    json.dump(hanja_data, f, ensure_ascii=False, indent=2)
+
+print(f"Successfully wrote {len(hanja_data)} Hanja characters to characters.json")

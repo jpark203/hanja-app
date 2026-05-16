@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanja Habit - 90 Days</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMTkyIDE5MiI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzNiODJmNiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNzIiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjM1ZW0iPua8KzwvdGV4dD48L3N2Zz4=">
+</head>
+<body>
+    <div id="app">
+        <!-- Dashboard View -->
+        <main id="dashboard" class="view active">
+            <header>
+                <h1>Hanja Habit</h1>
+                <p class="subtitle">90-Day Korean Hanja Mastery</p>
+            </header>
+            
+            <section class="stats-panel">
+                <div class="stat-card">
+                    <h3>Day</h3>
+                    <div id="stat-day" class="stat-value">1</div>
+                    <span class="stat-sub">of 90</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Learned</h3>
+                    <div id="stat-learned" class="stat-value">0</div>
+                    <span class="stat-sub">/ 1000</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Due Today</h3>
+                    <div id="stat-due" class="stat-value">0</div>
+                    <span class="stat-sub">Cards</span>
+                </div>
+            </section>
+
+            <button id="btn-start" class="primary-btn">Start Session</button>
+        </main>
+
+        <!-- Learn Session View (New Cards) -->
+        <main id="learn" class="view hidden">
+            <header class="session-header">
+                <span id="learn-progress">New: 0 / 0</span>
+                <button id="btn-learn-quit" class="ghost-btn">Quit</button>
+            </header>
+            
+            <div class="card-container">
+                <div class="flashcard learn-card">
+                    <div class="hanzi-large" id="learn-hanzi"></div>
+                    <div class="kr-translation">
+                        <span class="kr-meaning" id="learn-kr-meaning"></span> 
+                        <span class="kr-sound" id="learn-kr-sound"></span>
+                    </div>
+                    
+                    <div class="examples-container">
+                        <h3>Examples</h3>
+                        <ul id="learn-examples">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button id="btn-learn-next" class="primary-btn block-btn">Next Character</button>
+            </div>
+        </main>
+
+        <!-- Flashcard Session View (Testing) -->
+        <main id="session" class="view hidden">
+            <header class="session-header">
+                <span id="session-progress">0 / 0</span>
+                <button id="btn-quit" class="ghost-btn">Quit</button>
+            </header>
+            
+            <div class="card-container">
+                <div class="flashcard">
+                    <div class="card-top">
+                        <div class="kr-translation">
+                            <span class="kr-meaning" id="card-kr-meaning"></span> 
+                            <span class="kr-sound" id="card-kr-sound"></span>
+                        </div>
+                        <div id="card-meaning-hint" class="meaning hidden"></div> <!-- Unused for now -->
+                    </div>
+                    
+                    <div class="drawing-area">
+                        <div id="canvas-overlay" class="canvas-overlay">
+                            <span class="overlay-text">Draw Hanja Here</span>
+                        </div>
+                        <canvas id="draw-canvas"></canvas>
+                        <div id="card-answer" class="hanzi-answer hidden"></div>
+                    </div>
+                    
+                    <button id="btn-clear" class="icon-btn" title="Clear Drawing">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button id="btn-reveal" class="primary-btn block-btn">Reveal Answer</button>
+                <div id="grade-buttons" class="grade-actions hidden">
+                    <button id="btn-fail" class="grade-btn danger">Fail (Review Soon)</button>
+                    <button id="btn-pass" class="grade-btn success">Pass (Got It)</button>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Summary View -->
+        <main id="summary" class="view hidden">
+            <header>
+                <h1>Session Complete!</h1>
+                <p>Great job. See you tomorrow.</p>
+            </header>
+            <button id="btn-home" class="primary-btn mt-lg">Back to Dashboard</button>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
