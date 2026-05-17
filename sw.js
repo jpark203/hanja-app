@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hanja-habit-cache-v1';
+const CACHE_NAME = 'hanja-habit-cache-v2';
 const urlsToCache = [
   './',
   './index.html',
