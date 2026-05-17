@@ -8,6 +8,7 @@ class StudyApp {
         
         this.currentCard = null;
         this.currentMode = null; // 'learn' or 'test'
+        this.isMistakesMode = false;
         
         this.NEW_CARDS_PER_DAY = 11;
 
@@ -52,18 +53,18 @@ class StudyApp {
         const saved = localStorage.getItem('hanja_progress');
         if (saved) {
             this.progress = JSON.parse(saved);
+            // Ensure failed array exists for backward compatibility
+            if (!this.progress.failed) {
+                this.progress.failed = [];
+            }
         } else {
             this.progress = {
-                day: 1,
-                lastStudyDate: null,
+                day: 1, // Now acts as "Assignment" counter
+                lastStudyDate: null, // Unused for restriction now
                 learned: [], 
-                reviews: {} 
+                reviews: {},
+                failed: [] // Stores indices of failed cards
             };
-        }
-        
-        const today = new Date().toDateString();
-        if (this.progress.lastStudyDate && this.progress.lastStudyDate !== today) {
-            this.progress.day++;
         }
     }
 
@@ -83,7 +84,7 @@ class StudyApp {
             }
         }
         
-        // 2. Find new cards for the day
+        // 2. Find new cards for the batch (up to NEW_CARDS_PER_DAY)
         let newCount = 0;
         for (let i = 0; i < this.characters.length; i++) {
             if (newCount >= this.NEW_CARDS_PER_DAY) break;
@@ -105,8 +106,21 @@ class StudyApp {
         document.getElementById('stat-day').innerText = this.progress.day;
         document.getElementById('stat-learned').innerText = this.progress.learned.length;
         
-        this.buildSessionQueues();
+        // Only build queues if not in a session to estimate due
+        if (this.sessionQueue.length === 0) {
+            this.buildSessionQueues();
+        }
         document.getElementById('stat-due').innerText = this.sessionQueue.length;
+
+        // Mistakes button logic
+        const mistakesBtn = document.getElementById('btn-mistakes');
+        const mistakesCount = document.getElementById('mistakes-count');
+        if (this.progress.failed.length > 0) {
+            mistakesBtn.classList.remove('hidden');
+            mistakesCount.innerText = this.progress.failed.length;
+        } else {
+            mistakesBtn.classList.add('hidden');
+        }
     }
 
     switchView(viewId) {
@@ -115,17 +129,16 @@ class StudyApp {
     }
 
     startSession() {
+        this.isMistakesMode = false;
+
         if (this.sessionQueue.length === 0) {
             this.buildSessionQueues();
         }
         
         if (this.sessionQueue.length === 0) {
-            alert("No cards due today! Add more Hanja to your database.");
+            alert("No cards due right now! Add more Hanja to your database.");
             return;
         }
-
-        this.progress.lastStudyDate = new Date().toDateString();
-        this.saveProgress();
 
         // If there are new cards to learn, go to Learn View first
         if (this.learnQueue.length > 0) {
@@ -135,6 +148,24 @@ class StudyApp {
             // Only reviews due, skip to Test View
             this.startTestMode();
         }
+    }
+
+    startMistakesSession() {
+        if (this.progress.failed.length === 0) return;
+        
+        this.isMistakesMode = true;
+        this.sessionQueue = [];
+        this.learnQueue = []; // No learn mode for mistakes
+
+        // Shuffle mistakes
+        let mistakes = [...this.progress.failed];
+        mistakes.sort(() => Math.random() - 0.5);
+
+        for (let idx of mistakes) {
+            this.sessionQueue.push({ idx: idx, type: 'review' });
+        }
+
+        this.startTestMode();
     }
 
     /* Learning Mode */
@@ -184,6 +215,12 @@ class StudyApp {
 
     showNextTestCard() {
         if (this.sessionQueue.length === 0) {
+            // End of session logic
+            if (!this.isMistakesMode) {
+                this.progress.day++; // Increment Assignment
+                this.saveProgress();
+            }
+            this.sessionQueue = []; // Clear queue completely
             this.updateDashboard();
             this.switchView('summary');
             return;
@@ -223,6 +260,12 @@ class StudyApp {
         const ONE_DAY = 24 * 60 * 60 * 1000;
         
         if (passed) {
+            // Remove from mistakes if it was there
+            const mistakeIdx = this.progress.failed.indexOf(idx);
+            if (mistakeIdx > -1) {
+                this.progress.failed.splice(mistakeIdx, 1);
+            }
+
             if (!this.progress.learned.includes(idx)) {
                 this.progress.learned.push(idx);
             }
@@ -233,6 +276,11 @@ class StudyApp {
             }
             this.progress.reviews[idx] = nextReview;
         } else {
+            // Add to mistakes deck
+            if (!this.progress.failed.includes(idx)) {
+                this.progress.failed.push(idx);
+            }
+
             this.sessionQueue.push(this.currentCard);
             this.testTotal++;
             this.progress.reviews[idx] = now + (1000 * 60 * 60); 
@@ -293,16 +341,19 @@ class StudyApp {
 
     bindEvents() {
         document.getElementById('btn-start').addEventListener('click', () => this.startSession());
+        document.getElementById('btn-mistakes').addEventListener('click', () => this.startMistakesSession());
         
         // Quitting handlers
         document.getElementById('btn-quit').addEventListener('click', () => {
             if(confirm('Quit session? Progress is saved.')) {
+                this.sessionQueue = []; // Clear queue so dashboard re-evaluates
                 this.updateDashboard();
                 this.switchView('dashboard');
             }
         });
         document.getElementById('btn-learn-quit').addEventListener('click', () => {
              if(confirm('Quit learning?')) {
+                this.sessionQueue = []; // Clear queue so dashboard re-evaluates
                 this.updateDashboard();
                 this.switchView('dashboard');
             }
